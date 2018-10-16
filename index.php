@@ -1,13 +1,28 @@
-<?php 
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="image">
+    <input type="submit" name="sbmt" value="Post">
+</form>
+<?php
 
-$data   = array('name' => 'john' , 'age' => 31);
+    if(isset($_FILES['image'])) {
+        $ch = curl_init();
+        $cfile = new CURLFile($_FILES['image']['tmp_name'] , $_FILES['image']['type'] , $_FILES['image']['name']);
+        // gönderilecek veri adi ve dosyası 
+        $data = array('myimage' => $cfile);
 
-$string = http_build_query($data);
+        curl_setopt($ch , CURLOPT_URL , 'http://localhost/crul/upload.php');
+        curl_setopt($ch , CURLOPT_POST , true );
+        curl_setopt($ch , CURLOPT_POSTFIELDS , $data);
 
-$ch = curl_init('http://localhost/crul/data.php');
-curl_setopt($ch , CURLOPT_POST , true );
-curl_setopt($ch , CURLOPT_POSTFIELDS , $string) ;
-curl_setopt($ch , CURLOPT_RETURNTRANSFER , true);
+        $response = curl_exec($ch);
 
-$response = curl_exec($ch);
-curl_close($ch);
+        if($response == true) {
+            echo 'file posted';
+        } else {
+            echo 'file not posted' . curl_error($ch);
+        }
+        curl_close($ch);
+
+    }
+
+?>
